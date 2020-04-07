@@ -1,0 +1,33 @@
+# IDEA
+.idea/
+/out/
+
+# VS Code
+.vscode/
+
+# MacOs
+.DS_Store
+
+# virtualenv
+venv/
+ENV/
+
+# Python
+*.pyc
+__pycache__/
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+dist/
+build/
+*.egg-info/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Flask
+instance/
+.webassets-cache%
