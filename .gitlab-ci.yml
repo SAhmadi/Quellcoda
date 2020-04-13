@@ -10,7 +10,7 @@ Testing:
   only:
   - master
   script:
-  - python3 -m unittest -v
+  - python3 -m unittest discover -v
 
 Deploying:
   stage: deploy
