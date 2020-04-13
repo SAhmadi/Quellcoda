@@ -1,17 +1,18 @@
 image: google/cloud-sdk:alpine
 
 stages:
-  - test
+  - tests
   - deploy
+  - clear
 
-testing:
-  stage: test
+Testing:
+  stage: tests
   only:
   - master
   script:
-  - which python3
+  - python -m unittest -v
 
-deploying:
+Deploying:
   stage: deploy
   only:
   - master
@@ -20,4 +21,9 @@ deploying:
   - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
   - gcloud config set project ba-serverless-testing
   - gcloud builds submit --tag gcr.io/ba-serverless-testing/ba-serverless-testing-image
-  - gcloud beta run deploy --image gcr.io/ba-serverless-testing/ba-serverless-testing-image --region europe-west1 --platform managed --allow-unauthenticated
+  - gcloud beta run deploy ba-serverless-testing --image gcr.io/ba-serverless-testing/ba-serverless-testing-image --region europe-west1 --platform managed --allow-unauthenticated
+
+Clearing:
+  stage: clear
+  script:
+  - rm /tmp/$CI_PIPELINE_ID.json

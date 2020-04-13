@@ -32,4 +32,4 @@ RUN pip install gunicorn
 COPY . $APP_HOME
 
 EXPOSE 8080
-CMD ["gunicorn", "-b", "0.0.0.0:8080", "app", "--timeout 300"]
+CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app", "--timeout 300"]
