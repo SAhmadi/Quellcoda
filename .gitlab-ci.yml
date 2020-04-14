@@ -3,7 +3,6 @@ image: google/cloud-sdk:alpine
 stages:
   - tests
   - deploy
-  - clear
 
 Testing:
   stage: tests
@@ -23,7 +22,5 @@ Deploying:
   - gcloud builds submit --tag gcr.io/ba-serverless-testing/ba-serverless-testing-image
   - gcloud run deploy ba-serverless-testing --image gcr.io/ba-serverless-testing/ba-serverless-testing-image --region europe-west1 --platform managed --allow-unauthenticated
 
-Clearing:
-  stage: clear
-  script:
+after_script:
   - rm /tmp/$CI_PIPELINE_ID.json

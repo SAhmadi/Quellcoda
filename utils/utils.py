@@ -2,6 +2,8 @@
 # Contains useful utility functions used in multiple files
 
 import os
+import subprocess
+import sys
 
 from flask import Response
 from typing import Optional, Tuple, List
@@ -29,8 +31,8 @@ def check_files(request_files: MultiDict) -> Tuple[Optional[MultiDict], Optional
         return None, Response('Error: File has no name!', status=400)
 
     # Check if the file extensions are allowed
-    if not allowed_file_extension(files):
-        return None, Response('Error: Only .java and .zip files allowed!', status=400)
+    # if not allowed_file_extension(files):
+    #     return None, Response('Error: Only .java and .zip files allowed!', status=400)
 
     # Otherwise files are valid
     return files, None
@@ -61,4 +63,23 @@ def allowed_file_extension(files: MultiDict) -> bool:
         ext = ext.lstrip('.')
         if ext not in ALLOWED_EXTENSIONS:
             return False
+
     return True
+
+
+def run_cmd(cmd_list: List[str],
+            check_stdout: bool = False,
+            check_stderr: bool = False) -> Tuple[Optional[str], Optional[str]]:
+    """ """
+
+    cmd_instance = subprocess.run(cmd_list, capture_output=True)
+    if check_stdout:
+        if cmd_instance.stdout != b'':
+            return None, cmd_instance.stdout.decode()
+    if check_stderr:
+        if cmd_instance.stderr != b'':
+            return None, cmd_instance.stderr.decode()
+
+    cmd_resp = cmd_instance.stdout.decode()
+
+    return cmd_resp, None

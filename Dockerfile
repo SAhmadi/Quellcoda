@@ -21,6 +21,9 @@ RUN javac -version
 # Get Junit standalone jar
 RUN wget https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.6.0/junit-platform-console-standalone-1.6.0.jar
 
+# Get Gradle distribution zip
+RUN wget https://services.gradle.org/distributions/gradle-6.0.1-bin.zip
+
 # Get Flask and deps
 RUN pip install --upgrade pip
 RUN pip install virtualenv

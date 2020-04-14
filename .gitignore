@@ -31,3 +31,6 @@ pip-delete-this-directory.txt
 # Flask
 instance/
 .webassets-cache%
+
+# Java
+*.class
