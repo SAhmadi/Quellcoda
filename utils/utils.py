@@ -32,7 +32,7 @@ def check_files(request_files: MultiDict) -> Tuple[Optional[MultiDict], Optional
 
     # Check if the file extensions are allowed
     # if not allowed_file_extension(files):
-    #     return None, Response('Error: Only .java and .zip files allowed!', status=400)
+    #    return None, Response('Error: Only .java and .zip files allowed!', status=400)
 
     # Otherwise files are valid
     return files, None
@@ -63,7 +63,6 @@ def allowed_file_extension(files: MultiDict) -> bool:
         ext = ext.lstrip('.')
         if ext not in ALLOWED_EXTENSIONS:
             return False
-
     return True
 
 

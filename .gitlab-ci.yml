@@ -3,6 +3,7 @@ image: google/cloud-sdk:alpine
 stages:
   - tests
   - deploy
+  - clear
 
 Testing:
   stage: tests

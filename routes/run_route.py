@@ -11,6 +11,7 @@ from werkzeug.utils import secure_filename
 from globals import JUNIT_PATH
 from utils.utils import check_files, run_cmd
 
+
 run_path_blueprint = Blueprint('run', __name__)
 
 
@@ -133,10 +134,14 @@ def run_gradle():
         # Run: cd path/to/workdir
         os.chdir((os.path.join(workdir, project_dir)))
 
-        # Run: workdir/project_dir/gradlew wrapper --gradle-distribution-url=/app/gradle-6.3-bin.zip
+        # Run: cp /app/gradle_dist workdir/project_dir/gradle/wrapper
+        # Run: workdir/project_dir/gradlew wrapper --gradle-distribution-url=gradle_dist
+        shutil.copy('/app/gradle-6.0.1-bin.zip',
+                    os.path.join(workdir, project_dir, 'gradle', 'wrapper'))
+
         _, err = run_cmd([os.path.join(workdir, project_dir, 'gradlew'),
                           'wrapper',
-                          '--gradle-distribution-url=/app/gradle-6.3-bin.zip'],
+                          '--gradle-distribution-url=gradle-6.0.1-bin.zip'],
                          check_stderr=True)
 
         if err is not None:
@@ -151,3 +156,6 @@ def run_gradle():
         result = gradlew_result
 
     return jsonify(output=result)
+
+
+
