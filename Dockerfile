@@ -25,7 +25,7 @@ RUN wget https://repo1.maven.org/maven2/org/junit/platform/junit-platform-consol
 RUN wget https://services.gradle.org/distributions/gradle-6.0.1-bin.zip
 
 # Get Flask and deps
-RUN pip install --upgrade pip
+# RUN pip install --upgrade pip
 RUN pip install virtualenv
 RUN virtualenv venv
 RUN source venv/bin/activate

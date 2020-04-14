@@ -1,14 +1,11 @@
 import os
-import shutil
-import subprocess
-import sys
 import tempfile
 import zipfile
 
 from flask import Blueprint, request, Response, jsonify
 from werkzeug.utils import secure_filename
 
-from globals import JUNIT_PATH
+from globals import GRADLE_DIST_FLAG
 from utils.utils import check_files, run_cmd
 
 
@@ -88,7 +85,7 @@ def run_gradle():
             zip_file = f
         elif ext == 'zip' and zip_file is not None:
             # Multiple zip files not allowed
-            return Response('Error: Route /run/gradle only accepts one zip files!')
+            return Response('Error: Route /run/gradle only accepts one zip file!')
 
         if ext.lstrip('.').lower() != 'zip' and ext.lstrip('.').lower() != 'jar':
             return Response('Error: Route /run/gradle only accepts one .zip file and additional .jar files!',
@@ -114,10 +111,6 @@ def run_gradle():
 
         clean_dirs = [d for d in dirs if not d.startswith('_') and not d.startswith('.')]
 
-        # for d in dirs:
-        #    if d == '__MACOSX':
-        #        shutil.rmtree(os.path.join(workdir, d))
-
         # Get project root dir
         project_dir = clean_dirs[0]
 
@@ -136,14 +129,10 @@ def run_gradle():
         # Run: cd path/to/workdir
         os.chdir((os.path.join(workdir, project_dir)))
 
-        # Run: cp /app/gradle_dist workdir/project_dir/gradle/wrapper
-        # Run: workdir/project_dir/gradlew wrapper --gradle-distribution-url=gradle_dist
-        # shutil.copy('/app/gradle-6.0.1-bin.zip',
-        #            os.path.join(workdir, project_dir, 'gradle', 'wrapper'))
-
+        # Run: workdir/project_dir/gradlew wrapper --gradle-distribution-url=GRADLE_DIST_FLAG
         _, err = run_cmd([os.path.join(workdir, project_dir, 'gradlew'),
                           'wrapper',
-                          '--gradle-distribution-url=file:///app/gradle-6.0.1-bin.zip'],
+                          GRADLE_DIST_FLAG],
                          check_stderr=True)
 
         if err is not None:

@@ -6,7 +6,7 @@ from routes.test_route import test_path_blueprint
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 app.register_blueprint(run_path_blueprint, url_prefix='/run')
-app.register_blueprint(test_path_blueprint, url_prefix='/tests')
+app.register_blueprint(test_path_blueprint, url_prefix='/test')
 
 
 @app.route('/')

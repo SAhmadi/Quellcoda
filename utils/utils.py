@@ -3,7 +3,6 @@
 
 import os
 import subprocess
-import sys
 
 from flask import Response
 from typing import Optional, Tuple, List
@@ -29,10 +28,6 @@ def check_files(request_files: MultiDict) -> Tuple[Optional[MultiDict], Optional
     # Check if all files have a filename
     if not valid_filename(files):
         return None, Response('Error: File has no name!', status=400)
-
-    # Check if the file extensions are allowed
-    # if not allowed_file_extension(files):
-    #    return None, Response('Error: Only .java and .zip files allowed!', status=400)
 
     # Otherwise files are valid
     return files, None
