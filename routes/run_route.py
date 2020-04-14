@@ -112,12 +112,14 @@ def run_gradle():
         print('files:', str(files))
         print('dirs:', str(dirs))
 
-        for d in dirs:
-            if d == '__MACOSX':
-                shutil.rmtree(os.path.join(workdir, d))
+        clean_dirs = [d for d in dirs if not d.startswith('_') and not d.startswith('.')]
+
+        # for d in dirs:
+        #    if d == '__MACOSX':
+        #        shutil.rmtree(os.path.join(workdir, d))
 
         # Get project root dir
-        project_dir = dirs[0]
+        project_dir = clean_dirs[0]
 
         # Give permission to change project dir
         _, err = run_cmd(['chmod', '+rwx', os.path.join(workdir, project_dir)],
