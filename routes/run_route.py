@@ -138,12 +138,12 @@ def run_gradle():
 
         # Run: cp /app/gradle_dist workdir/project_dir/gradle/wrapper
         # Run: workdir/project_dir/gradlew wrapper --gradle-distribution-url=gradle_dist
-        shutil.copy('/app/gradle-6.0.1-bin.zip',
-                    os.path.join(workdir, project_dir, 'gradle', 'wrapper'))
+        # shutil.copy('/app/gradle-6.0.1-bin.zip',
+        #            os.path.join(workdir, project_dir, 'gradle', 'wrapper'))
 
         _, err = run_cmd([os.path.join(workdir, project_dir, 'gradlew'),
                           'wrapper',
-                          '--gradle-distribution-url=gradle-6.0.1-bin.zip'],
+                          '--gradle-distribution-url=file:///app/gradle-6.0.1-bin.zip'],
                          check_stderr=True)
 
         if err is not None:
