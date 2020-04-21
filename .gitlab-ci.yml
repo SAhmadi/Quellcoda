@@ -34,6 +34,4 @@ Deploy:
   - gcloud config set project ba-serverless-testing
   - gcloud builds submit --tag eu.gcr.io/ba-serverless-testing/ba-serverless-testing-image
   - gcloud run deploy ba-serverless-testing --image eu.gcr.io/ba-serverless-testing/ba-serverless-testing-image --region europe-west1 --platform managed --allow-unauthenticated
-
-after_script:
   - rm /tmp/$CI_PIPELINE_ID.json
