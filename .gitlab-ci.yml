@@ -1,18 +1,30 @@
 image: google/cloud-sdk:alpine
 
 stages:
-  - tests
+  - build
+  - test
   - deploy
   - clear
 
-Testing:
-  stage: tests
+Build:
+  stage: build
   only:
   - master
   script:
-  - python3 -m unittest discover -v
+  - docker build -t flask/serverless-testing .
+  artifacts:
+    paths:
+      - /var/lib/docker
 
-Deploying:
+Test:
+  stage: test
+  only:
+  - master
+  script:
+  - docker run --name serverless-testing -p 8080:8080 flask/serverless-testing
+  - docker exec serverless-testing python3 -m unittest discover -v
+
+Deploy:
   stage: deploy
   only:
   - master
@@ -20,8 +32,8 @@ Deploying:
   - echo $SERVICE_ACCOUNT > /tmp/$CI_PIPELINE_ID.json
   - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
   - gcloud config set project ba-serverless-testing
-  - gcloud builds submit --tag gcr.io/ba-serverless-testing/ba-serverless-testing-image
-  - gcloud run deploy ba-serverless-testing --image gcr.io/ba-serverless-testing/ba-serverless-testing-image --region europe-west1 --platform managed --allow-unauthenticated
+  - gcloud builds submit --tag eu.gcr.io/ba-serverless-testing/ba-serverless-testing-image
+  - gcloud run deploy ba-serverless-testing --image eu.gcr.io/ba-serverless-testing/ba-serverless-testing-image --region europe-west1 --platform managed --allow-unauthenticated
 
 after_script:
   - rm /tmp/$CI_PIPELINE_ID.json
