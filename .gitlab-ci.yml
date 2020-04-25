@@ -11,7 +11,7 @@ Build:
   only:
     - master
   script:
-    - echo $CI_DEPLOY_PASSWORD | docker login $CI_REGISTRY --username=$CI_DEPLOY_USER --password-stdin
+    - echo $CI_DEPLOY_PASSWORD | docker login --username $CI_DEPLOY_USER --password-stdin $CI_REGISTRY
     - docker build --pull -t $CI_REGISTRY_IMAGE .
     - docker push $CI_REGISTRY_IMAGE
 
@@ -23,7 +23,7 @@ Test:
   only:
     - master
   script:
-    - echo $CI_DEPLOY_PASSWORD | docker login $CI_REGISTRY --username=$CI_DEPLOY_USER --password-stdin
+    - echo $CI_DEPLOY_PASSWORD | docker login --username $CI_DEPLOY_USER --password-stdin $CI_REGISTRY
     - docker pull $CI_REGISTRY_IMAGE
     - docker images
     - docker run $CI_REGISTRY_IMAGE python3 -m unittest discover -v
