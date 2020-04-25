@@ -11,23 +11,24 @@ Build:
   only:
     - master
   script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-    - docker build --pull -t "$CI_REGISTRY_IMAGE" .
-    - docker push "$CI_REGISTRY_IMAGE"
+    - docker login -u $CI_DEPLOY_USER -p $CI_DEPLOY_PASSWORD $CI_REGISTRY
+    - docker build --pull -t $CI_REGISTRY_IMAGE .
+    - docker push $CI_REGISTRY_IMAGE
 
 Test:
   stage: test
-  image: docker:latest
+  image: $CI_REGISTRY_IMAGE
   services:
     - docker:dind
   only:
     - master
   script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker login -u $CI_DEPLOY_USER -p $CI_DEPLOY_PASSWORD $CI_REGISTRY
     - docker pull $CI_REGISTRY_IMAGE
     - docker images
-    - docker run --name $BRANCH -p 8080:8080 ${CI_REGISTRY_IMAGE}:latest
-    - docker exec $BRANCH python3 -m unittest discover -v
+    - docker run $CI_REGISTRY_IMAGE python3 -m unittest discover -v
+    - docker run -p 8080:8080 $CI_REGISTRY_IMAGE python3 -m unittest discover -v
+    # - docker exec $BRANCH python3 -m unittest discover -v
 
 Deploy:
   stage: deploy
