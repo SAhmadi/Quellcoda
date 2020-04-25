@@ -26,10 +26,8 @@
 `gcloud services enable containerregistry.googleapis.com cloudbuild.googleapis.com run.googleapis.com`
 5. Install beta components: `gcloud components install beta`
 6. Update components: `gcloud components update`
-
-**Push to [Google Container Registry](https://cloud.google.com/container-registry?hl=de) and [Google Cloud Run](https://cloud.google.com/run?hl=de)** <br>
-Navigate to the `cloudbuild.yml` file inside the project: `cd ~/path/to/ba-ahmadi-code`
-1. Run `gcloud builds submit`
+7. `gcloud builds submit --tag eu.gcr.io/ba-serverless-testing/ba-serverless-testing-image`
+8. `gcloud run deploy ba-serverless-testing --image eu.gcr.io/ba-serverless-testing/ba-serverless-testing-image --region europe-west1 --platform managed --allow-unauthenticated`
 
 # Exposé Sirat
 
