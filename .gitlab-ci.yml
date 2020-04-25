@@ -17,7 +17,7 @@ Build:
 
 Test:
   stage: test
-  image: $CI_REGISTRY_IMAGE
+  image: docker:latest
   services:
     - docker:dind
   only:
