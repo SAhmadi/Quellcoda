@@ -1,5 +1,3 @@
-# image: google/cloud-sdk:alpine
-
 stages:
   - build
   - test
@@ -8,32 +6,37 @@ stages:
 Build:
   stage: build
   image: docker:latest
+  services:
+    - docker:dind
   only:
-  - master
+    - master
   script:
-  - docker build -t flask/serverless-testing .
-  artifacts:
-    paths:
-      - /var/lib/docker
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker build --pull -t "$CI_REGISTRY_IMAGE" .
+    - docker push "$CI_REGISTRY_IMAGE"
 
 Test:
   stage: test
   image: docker:latest
+  services:
+    - docker:dind
   only:
-  - master
+    - master
   script:
-  - docker run --name serverless-testing -p 8080:8080 flask/serverless-testing
-  - docker exec serverless-testing python3 -m unittest discover -v
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE
+    - docker run --name $BRANCH -p 8080:8080 $CI_REGISTRY_IMAGE
+    - docker exec $BRANCH python3 -m unittest discover -v
 
 Deploy:
   stage: deploy
   image: google/cloud-sdk:alpine
   only:
-  - master
+    - master
   script:
-  - echo $SERVICE_ACCOUNT > /tmp/$CI_PIPELINE_ID.json
-  - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
-  - gcloud config set project ba-serverless-testing
-  - gcloud builds submit --tag eu.gcr.io/ba-serverless-testing/ba-serverless-testing-image
-  - gcloud run deploy ba-serverless-testing --image eu.gcr.io/ba-serverless-testing/ba-serverless-testing-image --region europe-west1 --platform managed --allow-unauthenticated
-  - rm /tmp/$CI_PIPELINE_ID.json
+    - echo $SERVICE_ACCOUNT > /tmp/$CI_PIPELINE_ID.json
+    - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
+    - gcloud config set project ba-serverless-testing
+    - gcloud builds submit --tag eu.gcr.io/ba-serverless-testing/ba-serverless-testing-image
+    - gcloud run deploy ba-serverless-testing --image eu.gcr.io/ba-serverless-testing/ba-serverless-testing-image --region europe-west1 --platform managed --allow-unauthenticated
+    - rm /tmp/$CI_PIPELINE_ID.json
