@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <title>Mops{{ ' - ' + title if title else (' - ' + name if name else '') }}</title>
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/icono.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/styles.min.css') }}" rel="stylesheet">
+
+    {% block headcontent %}{% endblock %}
+</head>
+<body>
+<header class="header header-main">
+    <input checked class="button button-sidebar button-sidebar-hide" name="button-sidebar" type="radio">
+    {% if navigation %}
+        <input class="button button-sidebar button-navigation-primary-show" name="button-sidebar" type="radio">
+    {% endif %}
+
+    <input class="button button-sidebar button-sidebar-show" name="button-sidebar" type="radio">
+    <i class="icon icon-sidebar icon-sidebar-show icono-hamburger"></i>
+
+    {% if navigation %}
+        <i class="icon icon-sidebar icon-navigation-primary-show icono-caretLeft"></i>
+    {% endif %}
+
+    <i class="icon icon-sidebar icon-sidebar-hide icono-cross"></i>
+    <a class="brand" href="#">
+        <h1>Mops{{ ' - ' + name if name else '' }}</h1>
+    </a>
+
+    <div class="form-search-wrapper">
+        <form class="form form-search" method="get">
+            <input class="button button-form-search button-form-search-toggle" name="searchFormIsVisible" type="checkbox"
+                 value="true" checked="{{ request.args.get('searchFormIsVisible') }}">
+
+            <i class="icon icon-form-search icon-form-search-hide icono-cross"></i>
+            <i class="icon icon-form-search icon-form-search-show icono-search"></i>
+            <input class="form-control textfield textfield-search" name="search" placeholder="Suchen..."
+                 value="{{ request.args.get('search') or ''}}"  type="search">
+        </form>
+    </div>
+    <div class="sidebar">
+        <div class="navigation-wrapper">
+            <nav class="navigation navigation-primary" is="mops-navigation">
+                <ul>
+                    <li>
+                        <a href="{{ url_for('serverless_testing.index') }}">
+                            <img src="{{ url_for('static', filename='img/resized/anna.jpg') }}" alt="Feedback Image Icon">
+                            Feedback
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('serverless_testing.index') }}">
+                            <img src="{{ url_for('static', filename='img/resized/babsi.jpg') }}" alt="Foren Image Icon">
+                            Foren
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('serverless_testing.index') }}">
+                            <img src="{{ url_for('static', filename='img/resized/dido.jpg') }}" alt="Gruppenbildung Image Icon">
+                            Gruppenbildung
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('serverless_testing.index') }}">
+                            <img src="{{ url_for('static', filename='img/resized/eminem.jpg') }}" alt="Java in der Praxis Image Icon">
+                            Java in der Praxis
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('serverless_testing.index') }}">
+                            <img src="{{ url_for('static', filename='img/resized/fin.jpg') }}" alt="Klausurzulassung Image Icon">
+                            Klausurzulassung
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('serverless_testing.index') }}">
+                            <img src="{{ url_for('static', filename='img/resized/joghurt.jpg') }}" alt="Korrektorinnen-Bewerbung Image Icon">
+                            Korrektorinnen-Bewerbung
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('serverless_testing.index') }}">
+                            <img src="{{ url_for('static', filename='img/resized/ken.jpg') }}" alt="Lernportfolios Image Icon">
+                            Lernportfolios
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('serverless_testing.index') }}">
+                            <img src="{{ url_for('static', filename='img/resized/mampfi.jpg') }}" alt="Materialsammlung Image Icon">
+                            Materialsammlung
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('serverless_testing.index') }}">
+                            <img src="{{ url_for('static', filename='img/resized/mopsi.jpg') }}" alt="Modulhandbuch Image Icon">
+                            Modulhandbuch
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('serverless_testing.index') }}">
+                            <img src="{{ url_for('static', filename='img/resized/nick.jpg') }}" alt="Terminfindung Image Icon">
+                            Terminfindung
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('serverless_testing.index') }}">
+                            <img src="{{ url_for('static', filename='img/resized/peter.jpg') }}" alt="Styleguide Image Icon">
+                            Styleguide
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            {% if navigation %}
+                {% block navigation %}{% endblock %}
+            {% else %}
+                <nav class="navigation navigation-secondary" is="mops-navigation">
+                    <ul>
+                        <li>
+                            <a href="#">Link 1</a>
+                        </li>
+                        <li class="active">
+                            <a href="#">Link 2</a>
+                        </li>
+                        <li>
+                            <a href="#">Link 3</a>
+                        </li>
+                    </ul>
+                </nav>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<div class="main-wrapper">
+    {% if bodycontent %}
+        {% block bodycontent %}{% endblock %}
+    {% else %}
+        <main is="mops-content">
+            <div class="alert alert-warning" role="alert">
+                Um hier Inhalt zu sehen, muss dem <a href="http://mops.style">Styleguide</a> gefolgt werden.
+            </div>
+        </main>
+    {% endif %}
+</div>
+
+<footer class="footer footer-main">
+    <div class="account">
+        <a class="account-link" href="https://keycloak.cs.hhu.de/auth/realms/MOPS/account">
+            <img class="account-image"
+                 src="{{ account.image if account and account.image else url_for('static', filename='img/resized/elvis.jpg') }}">
+            <div class="account-name">
+                <small>{{ 'Angemeldet als' if account else '' }}</small>
+                <span>{{ (account.name | truncate(30)) if account and account.name else 'Anmelden'}}</span>
+                {% if account %}
+                    <small>
+                        {% if account.role|length == 1 %}
+                            {{ 'in der Rolle ' + account.role }}
+                        {% elif account.role|length > 1 %}
+                            {{ 'in den Rollen ' }}
+                            {% for r in account.role %}
+                                {{ account.role|join(', ') }}
+                            {% endfor %}
+                        {% else %}
+                            {{ 'in keinen Rollen' }}
+                        {% endif %}
+                    </small>
+                {% endif %}
+            </div>
+        </a>
+        {% if account %}
+            <div class="account-logout-wrapper">
+                <a class="account-logout" href="{{ url_for('serverless_testing.index') }}">Abmelden</a>
+            </div>
+        {% endif %}
+    </div>
+    {% if not account %}
+        <span class="copyright">© 2020 Mops</span>
+    {% endif %}
+</footer>
+</body>
+</html>

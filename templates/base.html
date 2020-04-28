@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+{% extends "mopslayout.html" %}
+
+{% block headcontent %}
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block navigation %}
+    <nav class="navigation navigation-secondary" is="mops-navigation">
+        <ul>
+            <li>
+                <a href="{{ url_for('serverless_testing.index') }}">
+                    Startseite
+                </a>
+            </li>
+        </ul>
+  </nav>
+{% endblock %}
+
+{% block bodycontent %}
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+{% endblock %}

@@ -27,8 +27,6 @@ Test:
     - docker pull $CI_REGISTRY_IMAGE
     - docker images
     - docker run $CI_REGISTRY_IMAGE python3 -m unittest discover -v
-    - docker run -p 8080:8080 $CI_REGISTRY_IMAGE python3 -m unittest discover -v
-    # - docker exec $BRANCH python3 -m unittest discover -v
 
 Deploy:
   stage: deploy

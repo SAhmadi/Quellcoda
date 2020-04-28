@@ -2,13 +2,26 @@ import os
 import tempfile
 import zipfile
 from typing import Optional, Tuple
-
-from flask import Blueprint, Response, request, Request, jsonify
+from flask import Blueprint, Response, request, Request, jsonify, render_template
 from werkzeug.datastructures import MultiDict
 from werkzeug.utils import secure_filename
 from .helpers import check_files, run_cmd, JUNIT_PATH, get_file_extension, GRADLE_PATH, JAVAC_PATH, JAVA_PATH
 
+from jinja2 import Environment
+env = Environment()
+
 serverless_testing_bp = Blueprint('serverless_testing', __name__)
+
+
+@serverless_testing_bp.route('/', methods=['GET'])
+def index() -> str:
+    """ """
+    env.filters['bool'] = bool
+    return render_template('index.html',
+                           name='Serverless Testing',
+                           title='Code View',
+                           navigation=True,
+                           bodycontent=True,)
 
 
 @serverless_testing_bp.route('/run/java', methods=['POST'])
