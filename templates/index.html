@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 
+{% block headcontent %}
+<link href="{{ url_for('static', filename='css/editor_styles.css') }}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
-    <div id="content">
-        <h1 class="text-center">
-            Spring Boot Keycloak Demo
-        </h1>
-        <p>asdsadsad asdasd asdasd as das das dasd a</p>
-    </div>
+<div class="content">
+    {% include "/vue/index.html" %}
+</div>
 {% endblock %}

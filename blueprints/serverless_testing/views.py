@@ -20,6 +20,7 @@ def index() -> str:
     return render_template('index.html',
                            name='Serverless Testing',
                            title='Code View',
+                           headcontent=True,
                            navigation=True,
                            bodycontent=True,)
 

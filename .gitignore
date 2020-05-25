@@ -34,3 +34,9 @@ instance/
 
 # Java
 *.class
+
+# Node
+static/node_modules/serverless-editor/node_modules
+
+static/vue
+templates/vue
