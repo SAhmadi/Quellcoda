@@ -1,10 +1,13 @@
 .content {
   width: 100%;
-  height: 88%;
   border: none;
-  padding: 0;
-  margin-top: -16px;
   position: absolute;
+  overflow-y: hidden;
+  margin: 64px 0 64px 0;
+  padding: 0;
+  top: 0;
+  bottom: 0;
+  background: #fff;
 }
 
 .icon-bar {
@@ -13,7 +16,6 @@
   top: 0;
   bottom: 0;
   background: #ddd;
-  margin: 64px 0;
 }
 .btn-icon {
   width: 100%;
@@ -32,7 +34,7 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  margin: 64px 0 64px 70px;
+  margin: 0 0 0 70px;
   background: #eee;
 }
 .file-tree-menu-bar {
@@ -70,16 +72,4 @@
 }
 .file-tree-view ul li {
   padding: 6px 10px;
-}
-.file-tree-folder {
-
-}
-
-.content {
-  width: 100%;
-  position: absolute;
-  overflow-y: hidden;
-  top: 0;
-  bottom: 0;
-  background: #fff;
 }
