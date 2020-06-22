@@ -1,3 +1,4 @@
+import glob
 import os
 import tempfile
 import zipfile
@@ -7,8 +8,12 @@ from werkzeug.datastructures import MultiDict
 from werkzeug.utils import secure_filename
 from .helpers import check_files, run_cmd, JUNIT_PATH, get_file_extension, GRADLE_PATH, JAVAC_PATH, JAVA_PATH
 
+#from flask_cors import CORS, cross_origin
+
 from jinja2 import Environment
 env = Environment()
+
+#app.config['CORS_HEADERS'] = 'Content-Type'
 
 serverless_testing_bp = Blueprint('serverless_testing', __name__)
 
@@ -33,6 +38,17 @@ def run_java_files() -> Tuple[Response, int]:
     :rtype: Tuple[Response, int]
     """
     resp = compile_and_execute_java(request, execution_type='run')
+    return resp
+
+
+@serverless_testing_bp.route('/run/zip', methods=['POST'])
+def run_zip() -> Tuple[Response, int]:
+    """Route to run a zip file containing a java files/project.
+
+    :return: The stdout of the java program.
+    :rtype: Tuple[Response, int]
+    """
+    resp = compile_and_execute_zip(request, execution_type='run')
     return resp
 
 
@@ -98,7 +114,7 @@ def compile_java(execution_type: str,
         # Run: path/to/javac -d out_dir work_dir/*.java
         compile_cmd = [JAVAC_PATH, '-d', out_path]
     else:
-        # Run: path/to/javac -cp work_dir:path/to/junit.jar work_dir/*.java
+        # Run: path/to/javac -d out_path -cp work_dir:path/to/junit.jar work_dir/*.java
         compile_cmd = [JAVAC_PATH, '-d', out_path, '-cp', class_path]
 
     [compile_cmd.append(os.path.join(work_path, f.filename)) for f in files]
@@ -188,6 +204,90 @@ def compile_and_execute_java(req: Request, execution_type: str) -> Tuple[Respons
                                    main_file=main_file)
         if err is not None:
             return jsonify(error=err), 500
+
+    return jsonify(out=result), 200
+
+def compile_and_execute_zip(req: Request, execution_type: str) -> Tuple[Response, int]:
+    """Compiles ands executes zip files containing java files. The "execution_type" denotes
+    running or testing the files.
+
+    :param req: The request object.
+    :type req: Request
+    :param execution_type: Denotes to run or test the files.
+    :type execution_type: str
+
+    :return: The java program stdout or stderr and status code.
+    :rtype: Tuple[Response, int]
+    """
+    assert execution_type == 'run' or execution_type == 'test', \
+        '[execution_type] can only be run or test.'
+
+    files, err = check_files(req.files, None)
+    if err is not None:
+        return jsonify(error=err + 'bar400'), 400
+
+    # Get the zip file
+    zip_file = None
+    for f in files:
+        if get_file_extension(f.filename).lower() == 'zip':
+            zip_file = f
+
+    with tempfile.TemporaryDirectory() as work_dir:
+        # Extract zip file
+        secured_zip_file = secure_filename(zip_file.filename)
+        zip_file.save(os.path.join(work_dir, secured_zip_file))
+        zip_file = zipfile.ZipFile(os.path.join(work_dir, secured_zip_file), 'r')
+        zip_file.extractall(path=work_dir)
+        zip_file.close()
+        os.remove(os.path.join(work_dir, secured_zip_file))
+
+        # Read all files in work_dir
+        dirs = [f for f in os.listdir(work_dir) if os.path.isdir(os.path.join(work_dir, f))]
+
+        # Extraction from prev step can contain temp files
+        clean_dirs = [d for d in dirs if not d.startswith('_') and not d.startswith('.')]
+
+        # Get project root dir
+        project_dir = clean_dirs[0]
+
+        # Run: cd path/to/work_dir/project_root
+        os.chdir(os.path.join(work_dir, project_dir))
+
+        # Remove temp files inside our project_dir
+        # TODO: look for linux, macOS and windows tempfiles
+        for tf in os.listdir(os.path.join(work_dir, project_dir)):
+            if tf.lower() == '.DS_Store'.lower():
+                os.remove(os.path.join(work_dir, project_dir, tf))
+
+        # Get all .java file paths
+        file_paths_to_compile = []
+
+        for filename in glob.iglob(os.path.join(work_dir, project_dir, '**', '*.java'), recursive=True):
+            file_paths_to_compile.append(filename)
+
+        # Build out-path and class-path
+        out_path = os.path.join(work_dir, project_dir, 'out')
+        class_path = '.:' + out_path
+
+        # Compile java files
+        # Run: path/to/javac -d out_path -cp .:out work_dir/src/*.java
+        compile_cmd = [JAVAC_PATH, '-d', out_path, '-cp', class_path]
+        for fp in file_paths_to_compile:
+            compile_cmd.append(fp)
+
+        javac_stdout, javac_stderr = run_cmd(compile_cmd)
+        if javac_stderr is not None:
+            return jsonify(error=javac_stderr + 'foo'), 500
+        elif javac_stdout is not None:
+            return jsonify(error=javac_stdout + 'foo2'), 500
+
+        # Run: path/to/java -cp out_path Main
+        #result, err = execute_java(execution_type=execution_type,
+        #                           path=out_path,
+        #                           main_file=main_file)
+        result, err = run_cmd([JAVA_PATH, '-cp', 'out', 'Main'])
+        if err is not None:
+            return jsonify(error=err + 'foo3'), 500
 
     return jsonify(out=result), 200
 

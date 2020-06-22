@@ -36,10 +36,12 @@ RUN pip install --upgrade pip
 # RUN pip install virtualenv
 # RUN virtualenv venv
 # RUN source venv/bin/activate
-COPY requirements.txt $APP_HOME
-RUN pip install -r $APP_HOME/requirements.txt
-# RUN pip install Flask
-# RUN pip install gunicorn
+#COPY requirements.txt $APP_HOME
+#RUN pip install -r $APP_HOME/requirements.txt
+RUN pip install Flask
+RUN pip install gunicorn
+RUN pip install flask_cors
+
 
 COPY . $APP_HOME
 

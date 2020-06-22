@@ -11,7 +11,7 @@ GRADLE_PATH = '/app/gradle-6.3/bin/gradle'
 
 
 def check_files(request_files: MultiDict,
-                allowed_extensions: List[str]) -> Tuple[Optional[MultiDict], Optional[str]]:
+                allowed_extensions: Optional[List[str]]) -> Tuple[Optional[MultiDict], Optional[str]]:
     """Checks if files are present and valid.
 
     :param request_files: The file(s) send with the request.
@@ -34,8 +34,9 @@ def check_files(request_files: MultiDict,
             return None, 'File has no name!'
 
     # Only allow files with valid `extensions`
-    if not allowed_file_extensions(files, allowed_extensions):
-        return None, 'Only {0} file extensions allowed!'.format(str(allowed_extensions))
+    if allowed_extensions is not None:
+        if not allowed_file_extensions(files, allowed_extensions):
+            return None, 'Only {0} file extensions allowed!'.format(str(allowed_extensions))
 
     # Otherwise files are valid
     return files, None

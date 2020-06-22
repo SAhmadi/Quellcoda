@@ -87,54 +87,54 @@ Die Minimalen Anforderungen lauten:
 
 # Bachelorarbeit Aufbau
 
-Deckblatt
-Kurzzusammenfassung
-Inhaltsverzeichnis
-Abbildungsverzeichnis
+Deckblatt<br>
+Kurzzusammenfassung<br>
+Inhaltsverzeichnis<br>
+Abbildungsverzeichnis<br>
 Glossar
 
 ### 1. Einleitung
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **1.1** Motivation
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **1.1** Motivation<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **1.2** Überblick der Arbeit
 
 ### 2. Grundlagen
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **2.1** Serverless-Computing
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **2.2** Function as a Service
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **2.3** Eigenschaften serverloser Architekturen
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **2.4** Serverlose Dienste
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **2.4.1** AWS Lambda
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **2.1** Serverless-Computing<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **2.2** Function as a Service<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **2.3** Eigenschaften serverloser Architekturen<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **2.4** Serverlose Dienste<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **2.4.1** AWS Lambda<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **2.4.3** Google Cloud Run & AWS Fragate
 
 ### 3. Anforderungen
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **3.1** Nutzergruppe
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **3.2** Minimale Anforderungen
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **3.3** Erweiterungen
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **3.1** Nutzergruppe<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **3.2** Minimale Anforderungen<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **3.3** Erweiterungen<br>
 
 
 ### 4. Entwicklung
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **4.1** Dienste und Tools
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **4.1.1** Docker & Google Container Registry
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **4.1.2** Google Cloud Run
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **4.1.3** Flask Framework
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **4.1.4** OpenJDK 11 & JUnit 5
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **4.2** Architektur
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **4.2.1** REST Endpunkte
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **4.2.2** Ausführen eines Programms
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **4.1** Dienste und Tools<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **4.1.1** Docker & Google Container Registry<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **4.1.2** Google Cloud Run<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **4.1.3** Flask Framework<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **4.1.4** OpenJDK 11 & JUnit 5<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **4.2** Architektur<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **4.2.1** REST Endpunkte<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **4.2.2** Ausführen eines Programms<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **4.2.3** Testen eines Programms
 
 ### 5. Testen
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **5.1** Modulaufgaben Programmierung WS 2019
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **5.2** Cold Starts
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **5.3** Skalierbarkeit
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **5.4** Kosten
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **5.1** Modulaufgaben Programmierung WS 2019<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **5.2** Cold Starts<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **5.3** Skalierbarkeit<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **5.4** Kosten<br>
 
 ### 6. Fazit & weitere Anwendungsfälle
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **6.1** Fazit
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **6.2** Weitere Anwendungsfälle
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **6.2.1** Email
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **6.2.2** Dokumente
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **6.2.3** Webbrowser
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **6.1** Fazit<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **6.2** Weitere Anwendungsfälle<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **6.2.1** Email<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **6.2.2** Dokumente<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **6.2.3** Webbrowser<br>
 
-Literaturverzeichnis
-Ehrenwörtliche Erklärung
+Literaturverzeichnis<br>
+Ehrenwörtliche Erklärung<br>
 
