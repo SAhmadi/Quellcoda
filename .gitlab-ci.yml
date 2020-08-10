@@ -10,6 +10,7 @@ Build:
     - docker:dind
   only:
     - master
+    - dev
   script:
     - echo $CI_DEPLOY_PASSWORD | docker login --username $CI_DEPLOY_USER --password-stdin $CI_REGISTRY
     - docker build --pull -t $CI_REGISTRY_IMAGE .
@@ -22,6 +23,7 @@ Test:
     - docker:dind
   only:
     - master
+    - dev
   script:
     - echo $CI_DEPLOY_PASSWORD | docker login --username $CI_DEPLOY_USER --password-stdin $CI_REGISTRY
     - docker pull $CI_REGISTRY_IMAGE
