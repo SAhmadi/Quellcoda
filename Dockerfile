@@ -35,9 +35,7 @@ RUN rm gradle-6.3/init.d/readme.txt
 
 # Get Flask and deps
 RUN pip install --upgrade pip
-#RUN pip install Flask
-#RUN pip install gunicorn
-#RUN pip install flask_cors
+# Install Flask, gunicorn, flask_cors
 COPY requirements.txt $APP_HOME
 RUN pip install -r $APP_HOME/requirements.txt
 

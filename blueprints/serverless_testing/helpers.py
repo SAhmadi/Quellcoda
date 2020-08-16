@@ -3,7 +3,6 @@ import subprocess
 import zipfile
 from typing import Tuple, Optional, List
 
-from flask import Request
 from werkzeug.datastructures import MultiDict
 from werkzeug.utils import secure_filename
 
@@ -39,7 +38,7 @@ def check_files(request_files: MultiDict,
 
     # Only allow files with valid `extensions`
     if allowed_ext is not None and not allowed_file_exts(files, allowed_ext):
-            return None, 'Only {0} file extensions allowed!'.format(str(allowed_ext))
+        return None, 'Only {0} file extensions allowed!'.format(str(allowed_ext))
 
     # Otherwise files are valid
     return files, None
@@ -97,22 +96,6 @@ def run_cmd(cmd: List[str]) -> Tuple[Optional[str], Optional[str]]:
         stderr = cmd_out.stderr.decode().strip()
 
     return stdout, stderr
-
-
-def get_main_file(req: Request) -> Optional[str]:
-    """Get the main_file parameter from the request.
-    It specifies the name of the java file with the main method inside.
-
-    :param req: Flask request object
-    :return: The name of the main file
-    """
-    main_file = req.form.get('main_file', type=str)
-
-    if main_file is not None:
-        # Remove possible . (dot) in filename
-        main_file = main_file.rsplit('.', maxsplit=1)[0]
-
-    return main_file
 
 
 def extract_zip(zip_file, dest: str):
