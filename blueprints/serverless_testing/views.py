@@ -1,313 +1,174 @@
 import glob
 import os
+import subprocess
 import tempfile
 import zipfile
-from typing import Optional, Tuple
+from typing import Tuple, Union, Optional
 from flask import Blueprint, Response, request, Request, jsonify, render_template
-from werkzeug.datastructures import MultiDict
 from werkzeug.utils import secure_filename
-from .helpers import check_files, run_cmd, JUNIT_PATH, get_file_extension, GRADLE_PATH, JAVAC_PATH, JAVA_PATH
 
-#from flask_cors import CORS, cross_origin
-
-from jinja2 import Environment
-env = Environment()
-
-#app.config['CORS_HEADERS'] = 'Content-Type'
+from .exec_types.compile import javac
+from .exec_types.exec_types import ExecType
+from .exec_types.execute import java
+from .helpers import check_files, run_cmd, JUNIT_PATH, get_file_extension, GRADLE_PATH, \
+    get_main_file, extract_zip
 
 serverless_testing_bp = Blueprint('serverless_testing', __name__)
 
 
 @serverless_testing_bp.route('/', methods=['GET'])
-def index() -> str:
-    """ """
-    env.filters['bool'] = bool
+def index():
+    """Route to the index.html file. This file loosely implements
+    the MOPS layout.
+    :return: The index.html file
+    """
     return render_template('index.html',
-                           name='Serverless Testing',
-                           title='Code View',
+                           name='Serverless Editor',
+                           title='Serverless Editor',
                            headcontent=True,
                            navigation=True,
-                           bodycontent=True,)
+                           bodycontent=True, )
 
 
 @serverless_testing_bp.route('/run/java', methods=['POST'])
-def run_java_files() -> Tuple[Response, int]:
-    """Route to compile and run java files
+def run_java_files() -> Response:
+    """Route to compile and run java files.
 
     :return: The stdout of the java program.
-    :rtype: Tuple[Response, int]
+    :rtype: Response
     """
-    resp = compile_and_execute_java(request, execution_type='run')
-    return resp
-
-
-@serverless_testing_bp.route('/run/zip', methods=['POST'])
-def run_zip() -> Tuple[Response, int]:
-    """Route to run a zip file containing a java files/project.
-
-    :return: The stdout of the java program.
-    :rtype: Tuple[Response, int]
-    """
-    resp = compile_and_execute_zip(request, execution_type='run')
+    resp = execute_java(request, exec_type=ExecType.run)
     return resp
 
 
 @serverless_testing_bp.route('/run/gradle', methods=['POST'])
-def run_gradle() -> Tuple[Response, int]:
+def run_gradle() -> Union[Response, Tuple[Response, int]]:
     """Route to run a gradle program.
 
     :return: The stdout of the gradle program.
-    :rtype: Tuple[Response, int]
+    :rtype: Union[Response, Tuple[Response, int]]
     """
-    resp = execute_gradle(request, execution_type='run')
+    resp = execute_zip(request, exec_type=ExecType.run, use_gradle=True)
+    return resp
+
+
+@serverless_testing_bp.route('/run/zip', methods=['POST'])
+def run_zip() -> Union[Response, Tuple[Response, int]]:
+    """Route to run a zip file containing a java project (no gradle project).
+
+    :return: The stdout of the java program.
+    :rtype: Union[Response, Tuple[Response, int]]
+    """
+    resp = execute_zip(request, exec_type=ExecType.run, use_gradle=False)
     return resp
 
 
 @serverless_testing_bp.route('/test/java', methods=['POST'])
-def test_java_files() -> Tuple[Response, int]:
+def test_java_files() -> Response:
     """Route to compile and test java files.
 
     :return: The test result.
-    :rtype: Tuple[Response, int]
+    :rtype: Response
     """
-    resp = compile_and_execute_java(request, execution_type='test')
+    resp = execute_java(request, exec_type=ExecType.test)
     return resp
 
 
 @serverless_testing_bp.route('/test/gradle', methods=['POST'])
-def test_gradle() -> Tuple[Response, int]:
+def test_gradle() -> Union[Response, Tuple[Response, int]]:
     """Route to test a gradle program.
 
     :return: The test result.
-    :rtype: Tuple[Response, int]
+    :rtype: Union[Response, Tuple[Response, int]]
     """
-    resp = execute_gradle(request, execution_type='test')
+    resp = execute_zip(request, exec_type=ExecType.test, use_gradle=True)
     return resp
 
 
-def compile_java(execution_type: str,
-                 files: MultiDict,
-                 work_path: str,
-                 out_path: str,
-                 class_path: str) -> Optional[str]:
-    """Compiles java "files" at "work_path" into destination "out_path".
-    Adds "class_path" to javac command.
+@serverless_testing_bp.route('/test/zip', methods=['POST'])
+def test_zip() -> Union[Response, Tuple[Response, int]]:
+    """Route to test a zip file containing a java project (no gradle project).
 
-    :param execution_type: Compile files for running or testing request.
-    :type execution_type: str
-    :param files: The java files to be compiled.
-    :type files: MultiDict
-    :param work_path: The path the .java files are located.
-    :type work_path: str
-    :param out_path: The destination path the .class files should be put.
-    :type out_path: str
-    :param class_path: The class-path to get added to javac command.
-    :type class_path: str
-
-    :return: The stdout after javac command.
-    :rtype: Optional[str]
+    :return: The test result.
+    :rtype: Union[Response, Tuple[Response, int]]
     """
-    assert execution_type == 'run' or execution_type == 'test', \
-        '[execution_type] can only be run or test.'
-
-    if execution_type == 'run':
-        # Run: path/to/javac -d out_dir work_dir/*.java
-        compile_cmd = [JAVAC_PATH, '-d', out_path]
-    else:
-        # Run: path/to/javac -d out_path -cp work_dir:path/to/junit.jar work_dir/*.java
-        compile_cmd = [JAVAC_PATH, '-d', out_path, '-cp', class_path]
-
-    [compile_cmd.append(os.path.join(work_path, f.filename)) for f in files]
-
-    javac_stdout, _ = run_cmd(compile_cmd)
-    return javac_stdout
+    resp = execute_zip(request, exec_type=ExecType.test, use_gradle=False)
+    return resp
 
 
-def execute_java(execution_type: str,
-                 path: str,
-                 main_file: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
-    """Runs or tests compiled java class files inside "path".
-    The "execution_type" denotes running or testing the java files.
-    The "main_file" is needed to run the java files.
-
-    :param execution_type: Denotes to run or test the files.
-    :type execution_type: str
-    :param path: The path the compiled files are located.
-    :type path: str
-    :param main_file: Name of the java file with the main method.
-    :type main_file: Optional[str]
-
-    :return: The stdout and stderr after java command.
-    :rtype: Tuple[Optional[str], Optional[str]]
-    """
-    assert execution_type == 'run' or execution_type == 'test', \
-        '[execution_type] can only be run or test.'
-
-    # Run: path/to/java -cp out_dir path/to/main_file
-    if execution_type == 'run' and main_file is not None:
-        java_stdout, err = run_cmd([JAVA_PATH, '-cp', path, main_file])
-    # Run: path/to/java -jar path/to/junit.jar -cp out_dir --scan-class-path
-    else:
-        java_stdout, err = run_cmd([JAVA_PATH, '-jar', JUNIT_PATH, '-cp', path, '--scan-class-path'])
-
-    return java_stdout, err
-
-
-def compile_and_execute_java(req: Request, execution_type: str) -> Tuple[Response, int]:
-    """Compiles ands executes java files. The "execution_type" denotes
-    running or testing the files.
+def execute_java(req: Request, exec_type: ExecType) -> Response:
+    """Compiles ands executes java files. The "exec_type" denotes if
+    files should be run or tested.
 
     :param req: The request object.
     :type req: Request
-    :param execution_type: Denotes to run or test the files.
-    :type execution_type: str
+    :param exec_type: Decides if files should be run or tested.
+    :type exec_type: ExecType
 
     :return: The java program stdout or stderr and status code.
-    :rtype: Tuple[Response, int]
+    :rtype: Response
     """
-    assert execution_type == 'run' or execution_type == 'test', \
-        '[execution_type] can only be run or test.'
+    assert exec_type == ExecType.run or exec_type == ExecType.test, '[exec_type] can only be run or test'
 
-    files, err = check_files(req.files, allowed_extensions=['java', 'jar'])
+    # Check if files are present and valid
+    files, err = check_files(req.files, allowed_ext=['java'])
     if err is not None:
-        return jsonify(error=err), 400
+        return Response(err, status=400)
 
-    # Get main_file from form parameters if running code
-    main_file = None
-    if execution_type == 'run':
-        main_file = req.form.get('main_file', type=str)
-        if main_file is None:
-            return jsonify(error='Form parameter [main_file] is missing!'), 400
+    # Get main_file from form parameters, needed for /run java command
+    main_file = get_main_file(req)
+    if exec_type == ExecType.run and main_file is None:
+        return Response('Form parameter [main_file] is missing!', status=400)
 
-        # Remove possible . (dot) in filename
-        main_file = main_file.rsplit('.', maxsplit=1)[0]
-
+    # Compile and run or test files
     with tempfile.TemporaryDirectory() as work_path:
         for f in files:
             f.save(os.path.join(work_path, f.filename))
 
         out_path = os.path.join(work_path, 'out')
         class_path = out_path + ':' + JUNIT_PATH
+        file_paths = [os.path.join(work_path, f.filename) for f in files]
 
         # Compile java files
-        compile_output = compile_java(execution_type=execution_type,
-                                      files=files,
-                                      work_path=work_path,
-                                      out_path=out_path,
-                                      class_path=class_path)
-        if compile_output is not None:
-            return jsonify(error=compile_output), 500
+        stdout, stderr = javac(exec_type=exec_type,
+                               file_paths=file_paths,
+                               out_path=out_path,
+                               class_path=class_path)
+        if stdout is not None:
+            return Response(stdout, status=500)
+        elif stderr is not None:
+            return Response(stderr, status=500)
 
-        # Run java files
-        result, err = execute_java(execution_type=execution_type,
-                                   path=out_path,
-                                   main_file=main_file)
+        # Execute compiled java files
+        result, err = java(exec_type=exec_type,
+                           class_path=class_path,  # out_path
+                           main_file=main_file)
         if err is not None:
-            return jsonify(error=err), 500
+            return Response(err, status=500)
 
-    return jsonify(out=result), 200
+    return Response(result, status=200)
 
-def compile_and_execute_zip(req: Request, execution_type: str) -> Tuple[Response, int]:
-    """Compiles ands executes zip files containing java files. The "execution_type" denotes
-    running or testing the files.
+
+def execute_zip(req: Request, exec_type: ExecType, use_gradle: bool) \
+        -> Union[Response, Tuple[Response, int]]:
+    """Run or test a gradle project. The "exec_type" denotes if
+    files gradle project should be run (with gradle run) or tested with (gradle test).
 
     :param req: The request object.
     :type req: Request
-    :param execution_type: Denotes to run or test the files.
-    :type execution_type: str
+    :param exec_type: Decides if zip should be run or tested.
+    :type exec_type: ExecType
+    :param use_gradle: Decides if zip contains gradle project.
+    :type use_gradle: bool
 
-    :return: The java program stdout or stderr and status code.
-    :rtype: Tuple[Response, int]
+    :return: The gradle project stdout or stderr and status code as json or text/html.
+    :rtype: Union[Response, Tuple[Response, int]]
     """
-    assert execution_type == 'run' or execution_type == 'test', \
-        '[execution_type] can only be run or test.'
+    assert exec_type == ExecType.run or exec_type == ExecType.test,\
+        '[exec_type] can only be run or test'
 
-    files, err = check_files(req.files, None)
-    if err is not None:
-        return jsonify(error=err + 'bar400'), 400
-
-    # Get the zip file
-    zip_file = None
-    for f in files:
-        if get_file_extension(f.filename).lower() == 'zip':
-            zip_file = f
-
-    with tempfile.TemporaryDirectory() as work_dir:
-        # Extract zip file
-        secured_zip_file = secure_filename(zip_file.filename)
-        zip_file.save(os.path.join(work_dir, secured_zip_file))
-        zip_file = zipfile.ZipFile(os.path.join(work_dir, secured_zip_file), 'r')
-        zip_file.extractall(path=work_dir)
-        zip_file.close()
-        os.remove(os.path.join(work_dir, secured_zip_file))
-
-        # Read all files in work_dir
-        dirs = [f for f in os.listdir(work_dir) if os.path.isdir(os.path.join(work_dir, f))]
-
-        # Extraction from prev step can contain temp files
-        clean_dirs = [d for d in dirs if not d.startswith('_') and not d.startswith('.')]
-
-        # Get project root dir
-        project_dir = clean_dirs[0]
-
-        # Run: cd path/to/work_dir/project_root
-        os.chdir(os.path.join(work_dir, project_dir))
-
-        # Remove temp files inside our project_dir
-        # TODO: look for linux, macOS and windows tempfiles
-        for tf in os.listdir(os.path.join(work_dir, project_dir)):
-            if tf.lower() == '.DS_Store'.lower():
-                os.remove(os.path.join(work_dir, project_dir, tf))
-
-        # Get all .java file paths
-        file_paths_to_compile = []
-
-        for filename in glob.iglob(os.path.join(work_dir, project_dir, '**', '*.java'), recursive=True):
-            file_paths_to_compile.append(filename)
-
-        # Build out-path and class-path
-        out_path = os.path.join(work_dir, project_dir, 'out')
-        class_path = '.:' + out_path
-
-        # Compile java files
-        # Run: path/to/javac -d out_path -cp .:out work_dir/src/*.java
-        compile_cmd = [JAVAC_PATH, '-d', out_path, '-cp', class_path]
-        for fp in file_paths_to_compile:
-            compile_cmd.append(fp)
-
-        javac_stdout, javac_stderr = run_cmd(compile_cmd)
-        if javac_stderr is not None:
-            return jsonify(error=javac_stderr + 'foo'), 500
-        elif javac_stdout is not None:
-            return jsonify(error=javac_stdout + 'foo2'), 500
-
-        # Run: path/to/java -cp out_path Main
-        #result, err = execute_java(execution_type=execution_type,
-        #                           path=out_path,
-        #                           main_file=main_file)
-        result, err = run_cmd([JAVA_PATH, '-cp', 'out', 'Main'])
-        if err is not None:
-            return jsonify(error=err + 'foo3'), 500
-
-    return jsonify(out=result), 200
-
-
-def execute_gradle(req: Request, execution_type: str) -> Tuple[Response, int]:
-    """Run or test a gradle project. The "execution_type" denotes running or
-    testing the gradle project.
-
-    :param req: The request object.
-    :type req: Request
-    :param execution_type: Denotes to run or test the files.
-    :type execution_type: str
-
-    :return: The gradle project stdout or stderr and status code.
-    :rtype: Tuple[Response, int]
-    """
-    assert execution_type == 'run' or execution_type == 'test',\
-        '[execution_type] can only be run or test.'
-
-    files, err = check_files(req.files, allowed_extensions=['zip', 'jar'])
+    # Check if files are present and valid
+    files, err = check_files(req.files, allowed_ext=['zip'])
     if err is not None:
         return jsonify(error=err), 400
 
@@ -317,32 +178,90 @@ def execute_gradle(req: Request, execution_type: str) -> Tuple[Response, int]:
         if get_file_extension(f.filename).lower() == 'zip':
             zip_file = f
 
-    with tempfile.TemporaryDirectory() as work_dir:
-        # Extract zip file
+    # Run or test gradle project
+    with tempfile.TemporaryDirectory() as work_path:
+        # extract_zip(zip_file, dest=work_path)
+
+        # Get safe filename to store on filesystem
         filename = secure_filename(zip_file.filename)
-        zip_file.save(os.path.join(work_dir, filename))
-        zip_file = zipfile.ZipFile(os.path.join(work_dir, filename), 'r')
-        zip_file.extractall(path=work_dir)
+        zip_file.save(os.path.join(work_path, filename))
+
+        # Unzip newly stored zip file
+        zip_file = zipfile.ZipFile(os.path.join(work_path, filename), 'r')
+        zip_file.extractall(path=work_path)
         zip_file.close()
-        os.remove(os.path.join(work_dir, filename))
 
-        # Read all files in work_dir
-        dirs = [f for f in os.listdir(work_dir) if os.path.isdir(os.path.join(work_dir, f))]
+        # Remove zip file
+        os.remove(os.path.join(work_path, filename))
 
-        # Extraction from prev step can contain temp files
+        # Read all files in work_path
+        dirs = [d for d in os.listdir(work_path) if os.path.isdir(os.path.join(work_path, d))]
+
+        # Filter out possible temp files from previous extraction
         clean_dirs = [d for d in dirs if not d.startswith('_') and not d.startswith('.')]
 
-        # Get project root dir
+        # Only project root dir left
         project_dir = clean_dirs[0]
 
-        # Run: cd path/to/work_dir/project_root
-        os.chdir(os.path.join(work_dir, project_dir))
+        # Run: cd work_path/project_root
+        os.chdir(os.path.join(work_path, project_dir))
 
-        # Run: GRADLE_PATH run --quiet --console=plain
-        gradle_stdout, err = run_cmd([GRADLE_PATH, execution_type, '--console=plain'])
-        if err is not None:
-            return jsonify(error=err), 500
+        # Zip file contains a gradle project, use gradle to run or test
+        if use_gradle:
+            gradle_stdout, err = call_gradle_commands(exec_type)
+            if err is not None:
+                return jsonify(error=err), 500
 
-        result = gradle_stdout
+            result = gradle_stdout
 
-    return jsonify(out=result), 200
+        # Otherwise use javac and java
+        else:
+            # Get main_file from form parameters
+            main_file = get_main_file(req)
+            if exec_type == ExecType.run and main_file is None:
+                return jsonify(error='Form parameter [main_file] is missing!'), 400
+
+            out_path = os.path.join(work_path, project_dir, 'out')
+            class_path = out_path + ':' + JUNIT_PATH
+
+            # Collect file paths that need to be compiled
+            # (see https://stackoverflow.com/questions/2186525/how-to-use-glob-to-find-files-recursively)
+            compile_dir = 'src' if exec_type == ExecType.run else '**'
+            file_paths = [
+                f for f in glob.iglob(os.path.join(work_path, project_dir, compile_dir, '*.java'), recursive=True)
+            ]
+
+            # Compile java files
+            stdout, stderr = javac(exec_type=exec_type,
+                                   file_paths=file_paths,
+                                   out_path=out_path,
+                                   class_path=class_path)
+            if stdout is not None:
+                return jsonify(error=stdout), 500
+            elif stderr is not None:
+                return jsonify(error=stderr), 500
+
+            # Execute compiled java files
+            result, err = java(exec_type=exec_type,
+                               class_path=class_path,  # out_path
+                               main_file=main_file)
+            if err is not None:
+                return jsonify(error=err), 500
+
+    if request.args.get('return') == 'json':
+        # Returns json if ?return=json query param added, primarily for frontend
+        return jsonify(msg=result), 200
+    else:
+        return Response(result, status=200)
+
+
+def call_gradle_commands(exec_type: ExecType) -> Tuple[Optional[str], Optional[str]]:
+    """Run either "gradle run" or "gradle test".
+
+    :param exec_type: Decides if gradle project should be run or tested.
+    :return: Returns the stdout and possible error message.
+    :rtype: Tuple[Optional[str], Optional[str]]
+    """
+    run_or_test = 'run' if exec_type == ExecType.run else 'test'
+    gradle_stdout, err = run_cmd([GRADLE_PATH, run_or_test, '--console=plain', '--info'])
+    return gradle_stdout, err

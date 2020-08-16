@@ -25,6 +25,8 @@ RUN wget https://repo1.maven.org/maven2/org/junit/platform/junit-platform-consol
 # Get Gradle distribution zip
 RUN wget https://downloads.gradle-dn.com/distributions/gradle-6.3-bin.zip
 RUN unzip gradle-6.3-bin.zip
+
+# Cleaning up not needed files
 RUN rm -rf gradle-6.3-bin.zip
 RUN rm gradle-6.3/LICENSE
 RUN rm gradle-6.3/NOTICE
@@ -33,18 +35,13 @@ RUN rm gradle-6.3/init.d/readme.txt
 
 # Get Flask and deps
 RUN pip install --upgrade pip
-# RUN pip install virtualenv
-# RUN virtualenv venv
-# RUN source venv/bin/activate
-#COPY requirements.txt $APP_HOME
-#RUN pip install -r $APP_HOME/requirements.txt
-RUN pip install Flask
-RUN pip install gunicorn
-RUN pip install flask_cors
-
+#RUN pip install Flask
+#RUN pip install gunicorn
+#RUN pip install flask_cors
+COPY requirements.txt $APP_HOME
+RUN pip install -r $APP_HOME/requirements.txt
 
 COPY . $APP_HOME
 
 EXPOSE 8080
 CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app", "--workers 2", "--threads 8", "--timeout 0"]
-# CMD ["python", "-m", "unittest", "discover", "-v"]

@@ -1,7 +1,11 @@
 import os
 import subprocess
+import zipfile
 from typing import Tuple, Optional, List
+
+from flask import Request
 from werkzeug.datastructures import MultiDict
+from werkzeug.utils import secure_filename
 
 # GLOBALS
 JAVAC_PATH = '/usr/lib/jvm/default-jvm/bin/javac'
@@ -11,13 +15,13 @@ GRADLE_PATH = '/app/gradle-6.3/bin/gradle'
 
 
 def check_files(request_files: MultiDict,
-                allowed_extensions: Optional[List[str]]) -> Tuple[Optional[MultiDict], Optional[str]]:
+                allowed_ext: Optional[List[str]]) -> Tuple[Optional[MultiDict], Optional[str]]:
     """Checks if files are present and valid.
 
     :param request_files: The file(s) send with the request.
     :type request_files: MultiDict
-    :param allowed_extensions: Allowed file-extensions
-    :type allowed_extensions: List[str]
+    :param allowed_ext: Allowed file-extensions
+    :type allowed_ext: List[str]
 
     :return: The files and error response
     :rtype: Tuple[Optional[MultiDict], Optional[str]]
@@ -34,16 +38,15 @@ def check_files(request_files: MultiDict,
             return None, 'File has no name!'
 
     # Only allow files with valid `extensions`
-    if allowed_extensions is not None:
-        if not allowed_file_extensions(files, allowed_extensions):
-            return None, 'Only {0} file extensions allowed!'.format(str(allowed_extensions))
+    if allowed_ext is not None and not allowed_file_exts(files, allowed_ext):
+            return None, 'Only {0} file extensions allowed!'.format(str(allowed_ext))
 
     # Otherwise files are valid
     return files, None
 
 
-def allowed_file_extensions(files: List, extensions: List[str]) -> bool:
-    """Checks if all files have one of the allowed `extensions`.
+def allowed_file_exts(files: List, extensions: List[str]) -> bool:
+    """Checks if all files have one of the allowed "extensions".
 
     :param files: List of files send with the request.
     :type files: List
@@ -94,3 +97,40 @@ def run_cmd(cmd: List[str]) -> Tuple[Optional[str], Optional[str]]:
         stderr = cmd_out.stderr.decode().strip()
 
     return stdout, stderr
+
+
+def get_main_file(req: Request) -> Optional[str]:
+    """Get the main_file parameter from the request.
+    It specifies the name of the java file with the main method inside.
+
+    :param req: Flask request object
+    :return: The name of the main file
+    """
+    main_file = req.form.get('main_file', type=str)
+
+    if main_file is not None:
+        # Remove possible . (dot) in filename
+        main_file = main_file.rsplit('.', maxsplit=1)[0]
+
+    return main_file
+
+
+def extract_zip(zip_file, dest: str):
+    """Unzips zip file and stores its content on filesystem.
+
+    :param zip_file: The zip file to unzip.
+    :param dest: The location to unzip to.
+    :type dest: str
+    """
+
+    # Get safe filename to store on filesystem
+    filename = secure_filename(zip_file.filename)
+    zip_file.save(os.path.join(dest, filename))
+
+    # Unzip newly stored zip file
+    zip_file = zipfile.ZipFile(os.path.join(dest, filename), 'r')
+    zip_file.extractall(path=dest)
+    zip_file.close()
+
+    # Remove zip file
+    os.remove(os.path.join(dest, filename))

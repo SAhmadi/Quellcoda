@@ -29,5 +29,5 @@ class TestHelpers(unittest.TestCase):
             ('no_file', 'FooFile.java'),
             ('main_file', 'MyMainClass')
         ])
-        files, err = check_files(__request_files, allowed_extensions=['java'])
+        files, err = check_files(__request_files, allowed_ext=['java'])
         self.assertIsInstance(err, str)

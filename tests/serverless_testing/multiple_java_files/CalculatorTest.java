@@ -1,16 +1,11 @@
 import org.junit.jupiter.api.Test;
-// import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 public class CalculatorTest {
-
 	@Test
-	void addTwoNumbers() {
-		assertEquals(2, 2);
-	}
-
-	/*@Test
 	@DisplayName("Adding two numbers")
 	void addTwoNumbers() {
 		Calculator calculator = new Calculator();
@@ -42,6 +37,6 @@ public class CalculatorTest {
 	@DisplayName("Dividing by zero")
 	void divByZero() {
 		Calculator calculator = new Calculator();
-		assertThrows(ArithmeticException.class, calculator.div(1, 0), "1 / 0 = ArithmeticException");
-	}*/
+		assertThrows(ArithmeticException.class, () -> calculator.div(1, 0), "1 / 0 = ArithmeticException");
+	}
 }

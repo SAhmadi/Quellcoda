@@ -1,6 +1,7 @@
 # Serverless Testing App
-##### https://ba-serverless-testing-t6e6p4w6oa-ew.a.run.app  
->**Execute and test simple Java programs in an isolated environment.**
+###Execute and test simple Java programs in an isolated environment.
+Live: https://ba-serverless-testing-t6e6p4w6oa-ew.a.run.app  
+
 
 ## Requirements  
 1. Python 3.7
@@ -38,6 +39,7 @@ Entwicklung einer serverlosen Anwendung für das Testen von Java Programmen in e
 Development of a serverless application to test Java programs in an isolated environment
 
 Voraussichtlicher Beginn: Mitte März
+Abgabedatum: 20.08.2020
 
 * Erstgutachter: Prof. Mauve
 * Zweitgutachter: Jens Bendisposto / Prof. Leuschel
