@@ -7,7 +7,8 @@ from blueprints.serverless_testing.exec_types.compile import javac
 from blueprints.serverless_testing.exec_types.exec_types import ExecType
 from blueprints.serverless_testing.exec_types.execute import java
 from blueprints.serverless_testing.helpers import JUNIT_PATH
-from tests.serverless_testing.utils import ROOT_TEST_DIR, CALC_FILENAME, CALC_TEST_FILENAME, MAIN_FILENAME
+from tests.serverless_testing.utils import ROOT_TEST_DIR, CALC_FILENAME, CALC_TEST_FILENAME, MAIN_FILENAME, \
+    HELLO_NAME_FILENAME
 
 
 class TestCommandJava(unittest.TestCase):
@@ -50,7 +51,8 @@ class TestCommandJava(unittest.TestCase):
             # Execute compiled java files
             result, err = java(exec_type=ExecType.run,
                                class_path=self.class_path,
-                               main_file=MAIN_FILENAME.rsplit('.', maxsplit=1)[0])
+                               main_file=MAIN_FILENAME.rsplit('.', maxsplit=1)[0],
+                               args=[])
 
             self.assertIsNone(err)
 
@@ -68,9 +70,32 @@ class TestCommandJava(unittest.TestCase):
             # Execute compiled java files
             result, err = java(exec_type=ExecType.run,
                                class_path=self.class_path,
-                               main_file=CALC_TEST_FILENAME.rsplit('.', maxsplit=1)[0])
+                               main_file=CALC_TEST_FILENAME.rsplit('.', maxsplit=1)[0],
+                               args=[])
 
             self.assertIsNotNone(err)
+
+    def test_java_command_success_for_run_with_args(self):
+        """Tests the success of java command with exec_type "run" and
+        sends args.
+        """
+        file_paths = [
+            os.path.join(ROOT_TEST_DIR, 'arguments', HELLO_NAME_FILENAME)
+        ]
+
+        # Compile java files
+        stdout, stderr = javac(file_paths=file_paths,
+                               out_path=self.out_path,
+                               class_path=self.class_path)
+
+        if stdout is None and stderr is None:
+            # Execute compiled java files
+            result, err = java(exec_type=ExecType.run,
+                               class_path=self.class_path,
+                               main_file=HELLO_NAME_FILENAME.rsplit('.', maxsplit=1)[0],
+                               args=["Alice"])
+
+            self.assertIsNone(err)
 
     def test_java_command_success_for_test(self):
         """Tests the success of java command with exec_type "test".
@@ -89,7 +114,8 @@ class TestCommandJava(unittest.TestCase):
             # Execute compiled java files
             result, err = java(exec_type=ExecType.run,
                                class_path=self.class_path,
-                               main_file=None)
+                               main_file=None,
+                               args=[])
 
             self.assertIsNotNone(result)
 
@@ -107,6 +133,7 @@ class TestCommandJava(unittest.TestCase):
             # Execute compiled java files
             result, err = java(exec_type=ExecType.run,
                                class_path=self.class_path,
-                               main_file=None)
+                               main_file=None,
+                               args=[])
 
             self.assertIsNotNone(err)

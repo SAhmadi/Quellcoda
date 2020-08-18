@@ -20,3 +20,9 @@ CALC_TEST_PATH = os.path.join(ROOT_TEST_DIR, 'multiple_java_files', CALC_TEST_FI
 
 GRADLE_PROJECT_FILENAME = 'gradle_project.zip'
 GRADLE_PROJECT_PATH = os.path.join(ROOT_TEST_DIR, 'gradle_project', GRADLE_PROJECT_FILENAME)
+
+HELLO_NAME_FILENAME = 'HelloName.java'
+HELLO_NAME_PATH = os.path.join(ROOT_TEST_DIR, 'arguments', HELLO_NAME_FILENAME)
+
+GRADLE_WITH_ARGS_FILENAME = 'blatt01_balistic.zip'
+GRADLE_WITH_ARGS_PATH = os.path.join(ROOT_TEST_DIR, 'arguments', GRADLE_WITH_ARGS_FILENAME)

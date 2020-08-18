@@ -116,10 +116,19 @@ def execute_java(req: Request, exec_type: ExecType) -> Response:
         elif stderr is not None:
             return Response(stderr, status=500)
 
+        # Check for the command line arguments of the program, has form:
+        # ?args1=Foo&args2=Bar
+        args_list = []
+        for key in request.args:
+            k = str(key)
+            if k.startswith('args') and k != 'json':
+                args_list.append(str(request.args[key]))
+
         # Execute compiled java files
         result, err = java(exec_type=exec_type,
-                           class_path=class_path,  # out_path
-                           main_file=main_file)
+                           class_path=class_path,
+                           main_file=main_file,
+                           args=args_list)
         if err is not None:
             return Response(err, status=500)
 
@@ -144,7 +153,10 @@ def execute_gradle(req: Request, exec_type: ExecType) -> Union[Response, Tuple[R
     # Check if files are present and valid
     files, err = check_files(req.files, allowed_ext=['zip'])
     if err is not None:
-        return jsonify(error=err), 400
+        if request.args.get('return') == 'json':
+            return jsonify(error=err), 400
+        else:
+            return Response(response=err, status=400)
 
     # Get the zip file
     zip_file = None
@@ -168,10 +180,27 @@ def execute_gradle(req: Request, exec_type: ExecType) -> Union[Response, Tuple[R
         # Run: cd work_path/project_root
         os.chdir(os.path.join(work_path, project_dir))
 
+        # Check for the command line arguments of the program, has form:
+        # ?args1=Foo&args2=Bar
+        args_str = ''
+        for key in request.args:
+            if str(key).startswith('args') and str(key) != 'json':
+                args_str = args_str + str(request.args[key]) + ' '
+        args_str = args_str.strip()
+
         run_or_test = 'run' if exec_type == ExecType.run else 'test'
-        gradle_stdout, err = run_cmd([GRADLE_PATH, run_or_test, '--console=plain'])
+
+        # Program args only needed for running not for executing JUnit tests
+        if len(args_str) > 0 and exec_type == ExecType.run:
+            gradle_stdout, err = run_cmd([GRADLE_PATH, run_or_test, '--args=' + str(args_str), '--console=plain'])
+        else:
+            gradle_stdout, err = run_cmd([GRADLE_PATH, run_or_test, '--console=plain'])
+
         if err is not None:
-            return jsonify(error=err), 500
+            if request.args.get('return') == 'json':
+                return jsonify(error=err, msg=gradle_stdout), 500
+            else:
+                return Response(response=err, status=500)
 
         result = gradle_stdout
 

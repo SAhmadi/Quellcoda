@@ -6,7 +6,8 @@ from werkzeug.datastructures import FileStorage, MultiDict
 from blueprints.serverless_testing import views
 from blueprints.serverless_testing.exec_types.exec_types import ExecType
 from tests.serverless_testing.utils import MAIN_PATH, MAIN_FILENAME, CALC_PATH, CALC_FILENAME, CALC_TEST_PATH, \
-    CALC_TEST_FILENAME, CONTENT_TYPE_FORM_DATA, CONTENT_TYPE_PLAIN
+    CALC_TEST_FILENAME, CONTENT_TYPE_FORM_DATA, CONTENT_TYPE_PLAIN, CONTENT_TYPE_JSON, HELLO_NAME_PATH, \
+    HELLO_NAME_FILENAME
 
 
 def init_req_objs_run_java() -> Tuple[MultiDict, List[FileStorage]]:
@@ -30,6 +31,24 @@ def init_req_objs_run_java() -> Tuple[MultiDict, List[FileStorage]]:
     ])
 
     return data, [main_file, calculator_file]
+
+
+def init_req_objs_run_java_with_args() -> Tuple[MultiDict, List[FileStorage]]:
+    """Initializes the flask request object for the endpoint /run/java?args1=Value
+
+    :return: The data and files send with the request.
+    :rtype: Tuple[MultiDict, List[FileStorage]]
+    """
+    hello_name = FileStorage(stream=open(HELLO_NAME_PATH, 'rb'),
+                             filename=HELLO_NAME_FILENAME,
+                             content_type=CONTENT_TYPE_PLAIN)
+
+    data = MultiDict([
+        ('main_file', HELLO_NAME_FILENAME),
+        ('file', hello_name),
+    ])
+
+    return data, [hello_name]
 
 
 def init_req_objs_test_java() -> Tuple[MultiDict, List[FileStorage]]:
@@ -79,6 +98,18 @@ class TestFileViews(unittest.TestCase):
         """
         self.data, self.files = init_req_objs_run_java()
         with self.app.test_request_context('/run/java',
+                                           data=self.data,
+                                           method='POST',
+                                           content_type=CONTENT_TYPE_FORM_DATA):
+            resp = views.execute_java(request, exec_type=ExecType.run)
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_endpoint_run_java_with_args(self):
+        """Tests endpoint /run/java?args1=Alice.
+        """
+        self.data, self.files = init_req_objs_run_java_with_args()
+        with self.app.test_request_context('/run/java?args1=Alice',
                                            data=self.data,
                                            method='POST',
                                            content_type=CONTENT_TYPE_FORM_DATA):
