@@ -3,17 +3,20 @@
 Live: https://ba-serverless-testing-t6e6p4w6oa-ew.a.run.app  
 
 ## All repositories
-- In tihs repo you will find the code for the serverless Backendd
+- In this repo you will find the code for the serverless Backend
     - Inside `tests/programmierung_testaufgaben_ws18` you will find the a few changed excercies for the 
     course `Programmierung WS 18`. If you want to test them by sending them to `/run/gradle` and `/test/gradle`
     endpoints, make sure to add the necessary query-strings `?args1=Value1&args2=Value...`. Look inside the
     source files to see want arguments are needed and what they do.
-    - In `benchmark_scripts` you will find the scipts and manually added results for the benchmarks.
+    - In `tests/benchmarks.zip` you will find the scipts and manually added results for the benchmarks.
 
-- Thesis Repo:\
+- Thesis Repo: \
 https://gitlab.cs.uni-duesseldorf.de/cn-tsn/students/bachelor/ba-ahmadi-thesis
-- Frontend Repo (Christian sollte Zugriff haben, habe ihn als Developer hinzugefügt):\
-https://gitlab.cs.uni-duesseldorf.de/ahmadi/ba-ahmadi-ui
+
+- Frontend Repo (Christian sollte Zugriff haben, habe ihn als Developer hinzugefügt): \
+https://gitlab.cs.uni-duesseldorf.de/ahmadi/ba-ahmadi-ui \
+If you deploy your own firebase project, make sure to change the the url in the **BACKEND REPO**
+inside file `ba-ahmadi-code/templates/index.html` to your newly deploy firebase instance.
 
 ## Requirements  
 1. Python 3.7
