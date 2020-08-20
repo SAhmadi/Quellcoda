@@ -42,4 +42,6 @@ RUN pip install -r $APP_HOME/requirements.txt
 COPY . $APP_HOME
 
 EXPOSE 8080
+#CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app", "--workers 3", "--timeout 0", "--preload"]
 CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app", "--workers 2", "--threads 8", "--timeout 0"]
+#CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app", "--timeout 0"]

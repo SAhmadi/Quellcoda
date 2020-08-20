@@ -10,11 +10,11 @@ Live: https://ba-serverless-testing-t6e6p4w6oa-ew.a.run.app
 
 ## Build & Run
 1. `docker build -t flask/serverless-testing .`
-2. `docker run --name serverless-testing -p 8080:8080 flask/serverless-testing`
+2. `docker run -p 8080:8080 flask/serverless-testing`
 
 ## Build & Test
 1. `docker build -t flask/serverless-testing .`
-2. `docker run --name serverless-testing -p 8080:8080 flask/serverless-testing`
+2. `docker run -p 8080:8080 flask/serverless-testing`
 3. Open another cmd-tab and paste in:<br>`docker exec serverless-testing python3 -m unittest discover -v`
 
 ## Deploy
